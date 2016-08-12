@@ -1,0 +1,8 @@
+name: WECore
+version: 1.0-SNAPSHOT
+author: Gephery
+main: com.gmail.gephery.teleport.main.WorldExplorerCore
+commands:
+  wec:
+    description: Teleport to other worlds.
+    usage: /wec <wtp:create:sethome:direct:settown:signedit>
