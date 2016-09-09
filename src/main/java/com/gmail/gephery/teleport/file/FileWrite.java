@@ -1,11 +1,12 @@
 package com.gmail.gephery.teleport.file;
 
-import com.gmail.gephery.teleport.buffers.FileBuffer;
+import com.gmail.gephery.teleport.main.WorldExplorerCore;
 import net.projectzombie.survivalteams.file.WorldCoordinate;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.gmail.gephery.teleport.file.FilePath.*;
@@ -15,84 +16,116 @@ import static com.gmail.gephery.teleport.file.FilePath.*;
  */
 public class FileWrite
 {
-    public static boolean writeWorlds()
+    public static boolean writeWorld(World world)
     {
-        FileBuffer.loadFile("");
+        String pluginName = WorldExplorerCore.getPluginName(); 
+        FileBuffer fileBuffer = FileBufferController.instance(pluginName).getFile(fileName());
+        fileBuffer.safeLoadFileNoFF();
         String pathToWorlds = worlds();
 
-        FileBuffer.file.set(pathToWorlds, null);
-        return FileBuffer.saveFiles();
+        List<String> worlds = fileBuffer.file.getStringList(pathToWorlds);
+        if (worlds == null)
+            worlds = new ArrayList<>();
+        worlds.add(world.getName());
+        fileBuffer.file.set(pathToWorlds, worlds);
+        return fileBuffer.saveFiles();
     }
 
     public static boolean flushUserHomes(World world)
     {
-        FileBuffer.loadFile(world);
+        String pluginName = WorldExplorerCore.getPluginName();
+        FileBuffer fileBuffer = FileBufferController.instance(pluginName).getFile(world,
+                                                                                  FILE_NAME);
+        fileBuffer.safeLoadFile(world);
         String pathToUsers = usersHome();
 
-        FileBuffer.file.set(pathToUsers, null);
-        return FileBuffer.saveFiles();
+        fileBuffer.file.set(pathToUsers, null);
+        return fileBuffer.saveFiles();
     }
 
     public static boolean writePlayerHome(Player player)
     {
-        FileBuffer.loadFile(player.getWorld());
+        String pluginName = WorldExplorerCore.getPluginName();
+        World world = player.getWorld();
+        FileBuffer fileBuffer = FileBufferController.instance(pluginName).getFile(world,
+                                                                                  FILE_NAME);
+        fileBuffer.safeLoadFile(world);
         String pathToUserHome = userHome(player.getUniqueId());
 
-        FileBuffer.file.set(pathToUserHome, WorldCoordinate.toString(player.getLocation().getBlock()));
-        return FileBuffer.saveFiles();
+        fileBuffer.file.set(pathToUserHome, WorldCoordinate.toString(player.getLocation().getBlock()));
+        return fileBuffer.saveFiles();
     }
 
     public static boolean flushTowns(World world)
     {
-        FileBuffer.loadFile(world);
+        String pluginName = WorldExplorerCore.getPluginName();
+        FileBuffer fileBuffer = FileBufferController.instance(pluginName).getFile(world,
+                                                                                  FILE_NAME);
+        fileBuffer.safeLoadFile(world);
         String pathToTowns = townsHome();
 
-        FileBuffer.file.set(pathToTowns, null);
-        return FileBuffer.saveFiles();
+        fileBuffer.file.set(pathToTowns, null);
+        return fileBuffer.saveFiles();
     }
 
     public static boolean flushTown(World world, String townName)
     {
-        FileBuffer.loadFile(world);
+        String pluginName = WorldExplorerCore.getPluginName();
+        FileBuffer fileBuffer = FileBufferController.instance(pluginName).getFile(world,
+                                                                                  FILE_NAME);
+        fileBuffer.safeLoadFile(world);
         String pathToTown = townDirection(townName);
 
-        FileBuffer.file.set(pathToTown, null);
-        return FileBuffer.saveFiles();
+        fileBuffer.file.set(pathToTown, null);
+        return fileBuffer.saveFiles();
     }
 
     public static boolean writeTownDirection(String townName, Location location)
     {
-        FileBuffer.loadFile(location.getWorld());
+        String pluginName = WorldExplorerCore.getPluginName();
+        World world = location.getWorld();
+        FileBuffer fileBuffer = FileBufferController.instance(pluginName).getFile(world,
+                                                                                  FILE_NAME);
+        fileBuffer.safeLoadFile(world);
         String pathToTown = townDirection(townName);
 
-        FileBuffer.file.set(pathToTown, WorldCoordinate.toString(location.getBlock()));
-        return FileBuffer.saveFiles();
+        fileBuffer.file.set(pathToTown, WorldCoordinate.toString(location.getBlock()));
+        return fileBuffer.saveFiles();
     }
 
     public static boolean flushSigns(World world)
     {
-        FileBuffer.loadFile(world);
+        String pluginName = WorldExplorerCore.getPluginName();
+        FileBuffer fileBuffer = FileBufferController.instance(pluginName).getFile(world,
+                                                                                  FILE_NAME);
+        fileBuffer.safeLoadFile(world);
         String pathToSigns = signs();
 
-        FileBuffer.file.set(pathToSigns, null);
-        return FileBuffer.saveFiles();
+        fileBuffer.file.set(pathToSigns, null);
+        return fileBuffer.saveFiles();
     }
 
     public static boolean flushSign(World world, String signUUID)
     {
-        FileBuffer.loadFile(world);
+        String pluginName = WorldExplorerCore.getPluginName();
+        FileBuffer fileBuffer = FileBufferController.instance(pluginName).getFile(world,
+                                                                                  FILE_NAME);
+        fileBuffer.safeLoadFile(world);
         String pathToSign = sign(signUUID);
 
-        FileBuffer.file.set(pathToSign, null);
-        return FileBuffer.saveFiles();
+        fileBuffer.file.set(pathToSign, null);
+        return fileBuffer.saveFiles();
     }
 
     public static boolean writeSignCommands(World world, String signUUID, List<String> cmds)
     {
-        FileBuffer.loadFile(world);
+        String pluginName = WorldExplorerCore.getPluginName();
+        FileBuffer fileBuffer = FileBufferController.instance(pluginName).getFile(world,
+                                                                                  FILE_NAME);
+        fileBuffer.safeLoadFile(world);
         String pathToSignCmds = signCommands(signUUID);
 
-        FileBuffer.file.set(pathToSignCmds, cmds);
-        return FileBuffer.saveFiles();
+        fileBuffer.file.set(pathToSignCmds, cmds);
+        return fileBuffer.saveFiles();
     }
 }

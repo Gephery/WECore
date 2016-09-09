@@ -4,7 +4,6 @@ import com.gmail.gephery.guard.buffers.RegionBuffer;
 import com.gmail.gephery.teleport.file.FileRead;
 import com.gmail.gephery.teleport.file.FileWrite;
 import com.gmail.gephery.teleport.main.WorldExplorerCore;
-import com.gmail.gephery.teleport.util.ChatHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -42,10 +41,10 @@ public class ListenerSignChange implements Listener {
             event.setLine(0, ChatColor.GREEN + event.getLine(0));
 
             FileWrite.writeSignCommands(event.getPlayer().getWorld(),
-                                        ChatHelper.pluginMSGColor + event.getLine(0),
+                                        WECText.pluginMSGColor + event.getLine(0),
                                         new ArrayList<String>());
 
-            ChatHelper.sendPlayerMSG(event.getPlayer(), "Your sign has been set up!");
+            WECText.sendPlayerMSG(event.getPlayer(), "Your sign has been set up!");
         }
     }
 
@@ -58,9 +57,8 @@ public class ListenerSignChange implements Listener {
             BlockState block = player.getTargetBlock(mat, 10).getState();
             if (block instanceof Sign) {
                 Sign sign = (Sign) block;
-                sign.getLine(0);
                 if (sign.getLine(0).contains("[")) {
-                    List<String> cmds = FileRead.readSignCmds(world, ChatHelper.pluginMSGColor + sign.getLine(0));
+                    List<String> cmds = FileRead.readSignCmds(world, WECText.pluginMSGColor + sign.getLine(0));
                     CommandSender sender = plugin.getServer().getConsoleSender();
                     for (String cmd : cmds) {
 

@@ -51,7 +51,7 @@
     <orderEntry type="library" name="Maven: com.sk89q.lib:jlibnoise:1.0.0" level="project" />
     <orderEntry type="library" name="Maven: org.sk89q.bukkit:bukkit-classloader-check:1.7.9-R0.2" level="project" />
     <orderEntry type="library" name="Maven: net.projectzombie:ConsistentChatAPI:1.0-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: com.gmail.gephery:WorldExplorerGuard:1.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.spigotmc:spigot:1.10.2-R0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.gmail.gephery:WorldExplorerGuard:1.0-SNAPSHOT" level="project" />
   </component>
 </module>

@@ -1,12 +1,10 @@
 package com.gmail.gephery.teleport.main;
 
-import com.gmail.gephery.teleport.buffers.FileBuffer;
-import com.gmail.gephery.teleport.buffers.UtilBuffer;
+import com.gmail.gephery.teleport.WorldLoader;
+import com.gmail.gephery.teleport.file.FileBufferController;
 import com.gmail.gephery.teleport.controller.CommandsWEC;
 import com.gmail.gephery.teleport.controller.ListenerSignChange;
-import com.gmail.gephery.teleport.util.ChatHelper;
 
-import org.bukkit.Color;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,6 +18,12 @@ import java.util.Map;
  */
 public class WorldExplorerCore extends JavaPlugin {
 
+    private static JavaPlugin PLUGIN;
+    private static String PLUGIN_NAME;
+
+    public static JavaPlugin getPlugin() { return PLUGIN; }
+    public static String getPluginName() { return PLUGIN_NAME; }
+
     /**
      * Description: Checks if wtp or wcreate has been done.
      */
@@ -27,6 +31,9 @@ public class WorldExplorerCore extends JavaPlugin {
     public void onEnable() {
         //TODO Add separate inventories
         //TODO World Load in file to make the need to reload a world every time not necessary
+
+        PLUGIN = this;
+        PLUGIN_NAME = this.getName();
 
         Map<String, String> commandUsageMap = new HashMap<String, String>();
         commandUsageMap.put("wtp", "/wec wetp <world>");
@@ -37,9 +44,8 @@ public class WorldExplorerCore extends JavaPlugin {
         commandUsageMap.put("settown", "/wec settown <name>");
         commandUsageMap.put("signedit", "/wec signedit <signID> <command...>");
 
-        FileBuffer directionFileBuffer = new FileBuffer(this, "wec.yml");
-        ChatHelper.setUpHelper("Gephery", Color.ORANGE, Color.WHITE, Color.WHITE, commandUsageMap);
-        UtilBuffer.setUpUtilBuffer(this);
+        FileBufferController.init(this);
+        WorldLoader.loadInWorlds();
 
         this.getServer().getPluginManager().registerEvents(new
                 ListenerSignChange(this), this);

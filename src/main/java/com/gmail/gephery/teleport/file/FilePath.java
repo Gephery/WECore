@@ -7,10 +7,13 @@ import java.util.UUID;
  */
 public class FilePath
 {
-
+    public static final String FILE_NAME = "wec.yml";
     public static final String DIRECTION_ROOT = "direction";
     public static final String SIGN_ROOT = "sign";
     public static final String WORLD_ROOT = "world";
+
+    public static String fileName()
+    { return FILE_NAME; }
 
     public static String worlds()
     {

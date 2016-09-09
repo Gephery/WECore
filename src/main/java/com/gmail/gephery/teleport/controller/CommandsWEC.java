@@ -1,10 +1,9 @@
 package com.gmail.gephery.teleport.controller;
 
-import com.gmail.gephery.teleport.buffers.UtilBuffer;
 import com.gmail.gephery.teleport.file.FileRead;
 import com.gmail.gephery.teleport.file.FileWrite;
-import com.gmail.gephery.teleport.util.ChatHelper;
 
+import com.gmail.gephery.teleport.main.WorldExplorerCore;
 import org.bukkit.Difficulty;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -51,9 +50,10 @@ public class CommandsWEC implements CommandExecutor
                     msg = "Your home has been set :)";
                 else
                     msg = "Unsuccessful save.";
-                ChatHelper.sendPlayerMSG(player, msg);
+                WECText.sendPlayerMSG(player, msg);
                 return true;
-            } else if (args[0].equals("settown") && args.length > 1 &&
+            }
+            else if (args[0].equals("settown") && args.length > 1 &&
                         player.hasPermission("WEC.settown"))
             {
                 // Setting a town up.
@@ -65,10 +65,11 @@ public class CommandsWEC implements CommandExecutor
                 else
                     msg = "Unsuccessful save.";
 
-                ChatHelper.sendPlayerMSG(player, msg);
+                WECText.sendPlayerMSG(player, msg);
                 return true;
-            } else if (args[0].equals("direct") && args.length == 1 &&
-                        player.hasPermission("WEC.direct"))
+            }
+            else if (args[0].equals("dlist") && args.length == 1 &&
+                        player.hasPermission("WEC.dlist"))
             {
                 Set<String> towns = FileRead.readTowns(player.getWorld());
                 if (towns != null)
@@ -77,10 +78,11 @@ public class CommandsWEC implements CommandExecutor
                     for (String town : towns)
                         townList += ", " + town;
                     townList = "The towns are " + townList.substring(2, townList.length());
-                    ChatHelper.sendPlayerMSG(player, townList);
+                    WECText.sendPlayerMSG(player, townList);
                 }
                 return true;
-            } else if (args[0].equals("direct") && args.length > 1 &&
+            }
+            else if (args[0].equals("direct") || args[0].equals("tp") && args.length > 1 &&
                         player.hasPermission("WEC.direct"))
             {
                 String playerMsg = "";
@@ -90,23 +92,30 @@ public class CommandsWEC implements CommandExecutor
                         playerMsg = "Follow that compass home!";
                     else
                         playerMsg = "Your home is not on file.";
-                } else if (FileRead.readTowns(player.getWorld()) != null &&
-                            FileRead.readTowns(player.getWorld()).contains(args[2]))
+                }
+                else if (FileRead.readTowns(player.getWorld()) != null &&
+                            FileRead.readTowns(player.getWorld()).contains(args[1]))
                 {
-                    player.setCompassTarget(FileRead.readTownDirection(player.getWorld(), args[2]));
-                    playerMsg = "Follow that compass to " + args[2] + " Town";
+                    if (args[0].equals("direct"))
+                        player.setCompassTarget(FileRead.readTownDirection(player.getWorld(),
+                                                                           args[1]));
+                    else if (args[0].equals("tp"))
+                        player.teleport(FileRead.readTownDirection(player.getWorld(),
+                                                                            args[1]));
+                    playerMsg = "Follow that compass to " + args[1] + " Town";
                 }
                 if (!playerMsg.equals(""))
                 {
-                    ChatHelper.sendPlayerMSG(player, playerMsg);
+                    WECText.sendPlayerMSG(player, playerMsg);
                     return true;
                 }
-                ChatHelper.sendPlayerMSG(player, "WAIT!!!....You may not have it right :(");
+                WECText.sendPlayerMSG(player, "WAIT!!!....You may not have it right :(");
                 return true;
-            } else if (args[0].equals("signedit") && sender.hasPermission("WE.signedit") && args.length >= 4)
+            }
+            else if (args[0].equals("signedit") && sender.hasPermission("WE.signedit") && args.length >= 4)
             {
                 String signID = args[2];
-                List<String> cmds = FileRead.readSignCmds(player.getWorld(), ChatHelper.pluginMSGColor + signID);
+                List<String> cmds = FileRead.readSignCmds(player.getWorld(), WECText.pluginMSGColor + signID);
                 if (cmds == null)
                     cmds = new LinkedList<String>();
 
@@ -116,20 +125,24 @@ public class CommandsWEC implements CommandExecutor
                 }
                 cmds.add(pCmd.trim());
 
-                FileWrite.writeSignCommands(player.getWorld(), ChatHelper.pluginMSGColor + signID, cmds);
-                ChatHelper.sendPlayerMSG(player, "Your cmd has been added to the sign.");
+                FileWrite.writeSignCommands(player.getWorld(), WECText.pluginMSGColor + signID, cmds);
+                WECText.sendPlayerMSG(player, "Your cmd has been added to the sign.");
                 return true;
-            } else if (args[0].equals("create") && sender.hasPermission("WEC.create"))
+            }
+            else if (args[0].equals("create") && sender.hasPermission("WEC.create"))
             {
                 World world = null;
 
-                if (args.length > 1) {
+                if (args.length > 1)
+                {
                     // Making the world
-                    WorldCreator wC = new WorldCreator(args[2]);
+                    WorldCreator wC = new WorldCreator(args[1]);
 
-                    if (args.length > 2) {
+                    if (args.length > 2)
+                    {
                         // NETHER, NORMAL, THE_END
-                        switch (args[3]) {
+                        switch (args[2])
+                        {
                             case "NETHER":
                                 wC.environment(World.Environment.NETHER);
                                 break;
@@ -140,25 +153,28 @@ public class CommandsWEC implements CommandExecutor
                                 wC.environment(World.Environment.THE_END);
                                 break;
                             default:
-                                ChatHelper.sendPlayerMSG(player, "The Type you entered is wrong");
+                                WECText.sendPlayerMSG(player, "The Type you entered is wrong");
                                 return true;
                         }
                     }
 
                     world = wC.createWorld();
-                    UtilBuffer.plugin.getServer().createWorld(wC);
+                    WorldExplorerCore.getPlugin().getServer().createWorld(wC);
+                    FileWrite.writeWorld(world);
+                    WECText.sendPlayerMSG(player, "World " + args[1] + " is being created.");
 
-                    ChatHelper.sendPlayerMSG(player, "World " + args[2] + " is being created.");
-
-                    if (args.length > 4) {
-                        if (args[4].equals("t")) {
+                    if (args.length > 4)
+                    {
+                        if (args[4].equals("t"))
                             world.setPVP(true);
-                        } else {
+                        else
                             world.setPVP(false);
-                        }
-                    } if (args.length > 5) {
+                    }
+                    if (args.length > 5)
+                    {
                         // EASY, HARD, NORMAL, PEACEFUL
-                        switch (args[5]) {
+                        switch (args[5])
+                        {
                             case "EASY":
                                 world.setDifficulty(Difficulty.EASY);
                                 break;
@@ -172,48 +188,47 @@ public class CommandsWEC implements CommandExecutor
                                 world.setDifficulty(Difficulty.PEACEFUL);
                                 break;
                             default:
-                                ChatHelper.sendPlayerMSG(player, "The difficulty you entered is wrong");
+                                WECText.sendPlayerMSG(player, "The difficulty you entered is wrong");
                                 return true;
                         }
                     }
-                    ChatHelper.sendPlayerMSG(player, "World" + args[2] + "has been finalized.");
+                    WECText.sendPlayerMSG(player, "World" + args[1] + "has been finalized.");
                     return true;
                 }
-                } else if (args[0].equals("wtp") && sender.hasPermission("WEC.wtp"))
+                }
+                else if (args[0].equals("wtp") && sender.hasPermission("WEC.wtp"))
                 {
                     if (args.length > 1)
                     {
                         player.saveData(); // Saving previous world data for the player.
                         WorldCreator wC;
-                        World world = UtilBuffer.plugin.getServer().getWorld(args[1]);
-                        if (world != null || (FileRead.readWorlds() != null &&
-                                FileRead.readWorlds().contains(args[1])))
+                        World world = WorldExplorerCore.getPlugin().getServer().getWorld(args[1]);
+                        List<String> worlds = FileRead.readWorlds();
+                        if (world != null || (worlds != null &&
+                                worlds.contains(args[1])))
                         {
 
                             // Creating the reference to the map.
-                            if (world == null) {
+                            if (world == null)
+                            {
                                 wC = new WorldCreator(args[1]);
                                 world = wC.createWorld();
-                                UtilBuffer.plugin.getServer().createWorld(wC);
+                                WorldExplorerCore.getPlugin().getServer().createWorld(wC);
                             }
 
-                            Location loc = world.getSpawnLocation(); // Setting loc to spawn as default location.
+                            // Setting loc to spawn as default location.
+                            Location loc = world.getSpawnLocation();
 
                             world.getPlayers().add(player);
                             loc.setWorld(world); // Changing the location's world.
                             player.teleport(loc); // Teleport player to world's spawn.
-                            ChatHelper.sendPlayerMSG(player, "Woosh!");
+                            WECText.sendPlayerMSG(player, "Woosh!");
 
                             return true;
                         }
                     }
             }
-
-            String usage = "";
-            for (String use : ChatHelper.getCommandUsages())
-                usage += ", " + use;
-            usage = usage.substring(2, usage.length());
-            ChatHelper.sendPlayerMSG(player, usage);
+            // TODO add end msg.
             return true;
         }
         return false;
